@@ -1,12 +1,30 @@
+/***********************************************************************
+ * 
+ *  ROBO EQUILIBRISTA ESCOLA KPACITOR
+ *  
+ *  MINICURSO: CONSTRUINDO UM ROBÔ EQUILIBRISTA
+ * 
+ *  WWW.KPACITOR.COM
+ *  
+ *  OUTUBRO DE 2017
+ *  
+ *  elderlucas@kpacitor.com
+ *  
+ *  
+ ************************************************************************/
 
 #include <Wire.h>
 
 uint8_t i2c_data[14];
-
 double accX, accY, accZ;
 double gyroX, gyroY, gyroZ;
 
 uint32_t timer;
+
+
+/************************************************************************
+ * Setup Inicial com as Configurações para i2C.
+ ************************************************************************/
 
 void setup() {
 
