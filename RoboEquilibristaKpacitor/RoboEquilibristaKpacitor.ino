@@ -14,12 +14,25 @@
  ************************************************************************/
 
 #include <Wire.h>
+#include <Kalman.h>
 
 uint8_t i2c_data[14];
 double accX, accY, accZ;
 double gyroX, gyroY, gyroZ;
 
 uint32_t timer;
+
+Kalman KalmanX;
+Kalman KalmanY;
+Kalman KalmanZ;
+
+double KalAngleX;
+double KalAngleY;
+double KalAngleZ;
+
+double gyroXangle;
+double gyroYangle;
+
 
 
 /************************************************************************
@@ -63,10 +76,29 @@ void setup() {
 
   /* Tempo de estabilização do Sensor MPU6050 */
   delay(100);
-  
+
+  /* 1 - Leitura dos dados de Acc XYZ */
+  while(i2cRead(0x3B, i2c_data, 14));
+
+  /* 2 - Organizar os dados de Acc XYZ */
+  accX = (int16_t)((i2c_data[0] << 8) | i2c_data[1]); // ([ MSB ] [ LSB ])
+  accY = (int16_t)((i2c_data[2] << 8) | i2c_data[3]); // ([ MSB ] [ LSB ])
+  accZ = (int16_t)((i2c_data[4] << 8) | i2c_data[5]); // ([ MSB ] [ LSB ])
+
+  /* 3 - Calculo de Pitch e Roll */  
+  double pitch = atan(accX/sqrt(accY * accY + accZ * accZ)) * RAD_TO_DEG;
+  double roll = atan(accY/sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
+
+  /* 4 - Inicialização do Filtro de Kalman XY */
+  KalmanX.setAngle(roll);
+  KalmanY.setAngle(pitch);
+
+  gyroXangle = roll;
+  gyroYangle = pitch;
+ 
   timer = micros();
 
-  Serial.print("Fim Setup\n");
+  //Serial.print("Fim Setup\n");
   
 }
 
@@ -93,14 +125,28 @@ void loop() {
   Serial.print(gyroX); Serial.print("\t");
   Serial.print(gyroY); Serial.print("\t");
   Serial.print(gyroZ); Serial.print("\n");
-  */
+  */  
 
-  
+  /* Calculo do Delta Time */
+  double dt = (double)(micros() - timer)/1000000;
+  timer = micros();
+
   double pitch = atan(accX/sqrt(accY * accY + accZ * accZ)) * RAD_TO_DEG;
   double roll = atan(accY/sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
 
-  Serial.print(pitch); Serial.print("\n");
-  Serial.print(roll); Serial.print("\t");
+  //Serial.print(pitch); Serial.print("\n");
+  //Serial.print(roll); Serial.print("\t");
+
+  gyroXangle = gyroX / 131.0; //deg/s
+  gyroYangle = gyroY / 131.0; //deg/s
+
+  KalAngleX = KalmanX.getAngle(roll, gyroXangle, dt);
+  KalAngleY = KalmanY.getAngle(pitch, gyroYangle, dt);
+
+
+  Serial.print(KalAngleY); Serial.print("\n");
+  Serial.print(pitch); Serial.print("\t");
+  
 
 
 }
