@@ -103,15 +103,16 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  //Serial.print("Loop Principal\n");
 
+  /* Leitura dos Dados de Aceleração e Gyro do sensor MPU6050 */
   while(i2cRead(0x3B, i2c_data, 14));
 
+  /*Aceleração*/
   accX = (int16_t)((i2c_data[0] << 8) | i2c_data[1]); // ([ MSB ] [ LSB ])
   accY = (int16_t)((i2c_data[2] << 8) | i2c_data[3]); // ([ MSB ] [ LSB ])
   accZ = (int16_t)((i2c_data[4] << 8) | i2c_data[5]); // ([ MSB ] [ LSB ])
 
+  /*Giroscópio*/
   gyroX = (int16_t)((i2c_data[8] << 8) | i2c_data[9]); // ([ MSB ] [ LSB ])
   gyroY = (int16_t)((i2c_data[10] << 8) | i2c_data[11]); // ([ MSB ] [ LSB ])
   gyroZ = (int16_t)((i2c_data[12] << 8) | i2c_data[13]); // ([ MSB ] [ LSB ])
@@ -127,6 +128,8 @@ void loop() {
   Serial.print(gyroZ); Serial.print("\n");
   */  
 
+  /******************* Filtro de Kalman *************************/
+  
   /* Calculo do Delta Time */
   double dt = (double)(micros() - timer)/1000000;
   timer = micros();
@@ -134,18 +137,17 @@ void loop() {
   double pitch = atan(accX/sqrt(accY * accY + accZ * accZ)) * RAD_TO_DEG;
   double roll = atan(accY/sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
 
-  //Serial.print(pitch); Serial.print("\n");
-  //Serial.print(roll); Serial.print("\t");
-
+  /* Convertendo de Rad/Segundo para Graus/Segundo Calculo da Taxa angular baseado no Giroscópio */
   gyroXangle = gyroX / 131.0; //deg/s
   gyroYangle = gyroY / 131.0; //deg/s
 
+  /* Estimativa de Ângulo nos Eixos X e Y usando Filtro de Kalman */
   KalAngleX = KalmanX.getAngle(roll, gyroXangle, dt);
   KalAngleY = KalmanY.getAngle(pitch, gyroYangle, dt);
 
-
-  Serial.print(KalAngleY); Serial.print("\n");
-  Serial.print(pitch); Serial.print("\t");
+  /* Mensagens de Debug para verificação dos resultados obtidos com Filtro de Kalman e Calculos dos Angulos com os Acelerômetros */
+  Serial.print(KalAngleY); Serial.print("\n"); //Angulo estimado com o filtro de Kalman
+  Serial.print(pitch); Serial.print("\t"); //Angulo Calculado com os dados de aceleração da MPU6050
   
 
 
