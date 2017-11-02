@@ -101,8 +101,6 @@ void setup() {
   //Serial.print("Fim Setup\n");
 
   init_motores();
-
-  PMWControleMotores(0);
 }
 
 void loop() {
@@ -151,7 +149,8 @@ void loop() {
   /* Mensagens de Debug para verificação dos resultados obtidos com Filtro de Kalman e Calculos dos Angulos com os Acelerômetros */
   Serial.print(KalAngleY); Serial.print("\n"); //Angulo estimado com o filtro de Kalman
   Serial.print(pitch); Serial.print("\t"); //Angulo Calculado com os dados de aceleração da MPU6050
-  
 
+  double res = Compute(KalAngleY);
+  PMWControleMotores(res);  
 
 }
