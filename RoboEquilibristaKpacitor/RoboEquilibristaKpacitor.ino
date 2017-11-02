@@ -99,7 +99,10 @@ void setup() {
   timer = micros();
 
   //Serial.print("Fim Setup\n");
-  
+
+  init_motores();
+
+  PMWControleMotores();
 }
 
 void loop() {
