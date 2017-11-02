@@ -102,7 +102,7 @@ void setup() {
 
   init_motores();
 
-  PMWControleMotores();
+  PMWControleMotores(0);
 }
 
 void loop() {

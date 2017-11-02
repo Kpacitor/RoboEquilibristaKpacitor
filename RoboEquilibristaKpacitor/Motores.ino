@@ -13,10 +13,19 @@ void init_motores(){
   
 }
 
-void PMWControleMotores(){
-  analogWrite(OUTA, 50); /* Controlando o Motor da Direita Para T.*/
-  analogWrite(OUTB, 0); /* Controlando o Motor da Direita Para F.*/
-  analogWrite(OUTC, 50); /* Controlando o Motor da Esquerda Para T.*/
-  analogWrite(OUTD, 0); /* Controlando o Motor da Esquerda Para F.*/
+void PMWControleMotores(double comando){
+
+  if(comando > 0){
+    analogWrite(OUTA, 0); /* Controlando o Motor da Direita Para T.*/
+    analogWrite(OUTB, abs(comando)); /* Controlando o Motor da Direita Para F.*/
+    analogWrite(OUTC, 0); /* Controlando o Motor da Esquerda Para T.*/
+    analogWrite(OUTD, abs(comando)); /* Controlando o Motor da Esquerda Para F.*/
+  }else{
+    analogWrite(OUTA, abs(comando)); /* Controlando o Motor da Direita Para T.*/
+    analogWrite(OUTB, 0); /* Controlando o Motor da Direita Para F.*/
+    analogWrite(OUTC, abs(comando)); /* Controlando o Motor da Esquerda Para T.*/
+    analogWrite(OUTD, 0); /* Controlando o Motor da Esquerda Para F.*/
+    
+  }
 }
 
